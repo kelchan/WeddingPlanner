@@ -1,0 +1,60 @@
+@model List<Wedding>
+
+<h1>Welcome to the Wedding Planner</h1>
+
+<table class="table table-striped">
+<thead>
+    <tr>
+        <th scope="col"></th>
+        <th scope="col">Wedding</th>
+        <th scope="col">Date</th>
+        <th scope="col">Guest</th>
+        <th scope="col">Action</th>
+    </tr>
+</thead>
+<tbody>
+    @foreach( Wedding wedding in Model )
+    {
+        bool alreadyRSVP = wedding.Guests.Any( rsvp => rsvp.UserId == Context.Session.GetInt32("UUID") );
+        <tr>
+            <th scope="row"></th>
+            <td><a asp-action="ViewWedding" asp-route-weddingId="@wedding.WeddingId">@wedding.WedderOne & @wedding.WedderTwo</a></td>
+            <td>@wedding.Date</td>
+            <td>@wedding.Guests.Count</td>
+            <td>
+                @if ( @wedding.WeddingCreator.UserId == Context.Session.GetInt32("UUID") )
+                {
+                    <a href="/weddings/@wedding.WeddingId/edit"><button>Edit</button></a>
+
+                    <a
+                        asp-controller="Wedding"
+                        asp-action="Delete"
+                        asp-route-deletedWeddingId="@wedding.WeddingId"
+                        method="POST">
+                            <button>Delete</button>
+                    </a>
+
+                }
+                else
+                {
+                <form asp-controller="Wedding" asp-action="Rsvp" asp-route-weddingId="@wedding.WeddingId" method="post">
+                    <button>
+                        @if( alreadyRSVP )
+                        {
+                            <span>Un-RSVP</span>
+                        }
+                        else
+                        {
+                            <span>RSVP</span>
+                        }
+                    </button>
+                </form>
+                }
+            </td>
+        </tr>
+    }
+</tbody>
+</table>
+
+
+<a href="/wedding/new"><button>New Wedding</button></a>
